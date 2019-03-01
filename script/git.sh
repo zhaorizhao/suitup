@@ -15,6 +15,14 @@ function suitup-git-push-force {
 function suitup-git-commit {
   local MESSAGE=$1
   local AUTHOR=$2
+  local DIR=$(echo $(pwd) | awk -F "/" '{print $NF}')
+
+  if [[ "$DIR" =~ 'build$' ]]; then
+    local SOURCE_DIR=$(echo $(pwd) | awk -F "/" '{print $NF}' | awk -F "_build" '{print $1}')
+#     echo "$SOURCE_DIR"
+    local BASE_COMMIT="["$(cd ../$SOURCE_DIR;git show | head -1 | cut -c1-14)"]"
+#     echo "$BASE_COMMIT"
+  fi
 
   if [ -z "$MESSAGE" ]; then
     MESSAGE="No Message."
@@ -23,9 +31,9 @@ function suitup-git-commit {
   git add .
 
   if [ -n "$AUTHOR" ]; then
-    git commit -am $MESSAGE --author=$AUTHOR
+    git commit -am "$MESSAGE   $BASE_COMMIT" --author=$AUTHOR
   else
-    git commit -am $MESSAGE
+    git commit -am "$MESSAGE   $BASE_COMMIT"
   fi
 }
 
